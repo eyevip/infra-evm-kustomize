@@ -4,8 +4,8 @@ kind: Kustomization
 secretGenerator:
   - name: mariadb-secret
     literals:
-      - ROOT_PASSWORD=TehxqmDJecWz,5t4X%iZ1tTel1J&F2
-      - DB_PASSWORD=Q3O1w4TrWruO48ClPtiqq$lUvayhSb
+      - ROOT_PASSWORD=SECURE_ROOT_PASSWORD
+      - DB_PASSWORD=SECURE_USER_PASSWORD
     type: Opaque
 
 resources:
