@@ -22,7 +22,6 @@ spec:
             ]
         - name: update
           image: reg.eyevip.io/eyevip/eyevip:latest
-          imagePullPolicy: Always
           command:
             [
               "sh",

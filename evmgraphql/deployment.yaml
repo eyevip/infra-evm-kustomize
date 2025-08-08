@@ -15,7 +15,6 @@ spec:
       containers:
         - name: evm-graphql
           image: reg.eyevip.io/eyevip/eyevip:latest
-          imagePullPolicy: IfNotPresent
           command:
             - /usr/bin/evm-graphql
             - --config
