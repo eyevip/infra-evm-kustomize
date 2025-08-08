@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+
+secretGenerator:
+  - name: redis-secret
+    literals:
+      - PASSWORD=CsaPzVuu-nV6&C7R%3P_J0wv7,4MW9
+    type: Opaque
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  # - monitor.yaml

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phpfpm
+spec:
+  selector:
+    app: phpfpm
+  ports:
+    - port: 9000
+      targetPort: fastcgi

@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evm-graphql
+data:
+  config.yaml: |
+    graphql:
+      maxComplexity: 600
+      warnComplexity: 500
+      federation:
+        services-start-port: 9050
+
+    global:
+      # # set to time.Local and add to mysql dsn (time_zone="UTC")
+      timezone: 'Europe/Zurich'
+      conn:
+        max-conns: 10
+        max-time: 5m0s
+        idle:
+          max-conns: 10
+          max-time: 5m0s
+        params:
+          - parseTime=true
+          - sql_mode=''
+
+    log:
+      sql: false
+      level: info
+
+    metrics:
+      enabled: true
+      port: 8080
+
+    grpc:
+      port: 3060
+      address: 0.0.0.0

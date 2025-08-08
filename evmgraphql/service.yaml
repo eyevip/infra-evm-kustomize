@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evm-graphql
+spec:
+  selector:
+    app: evm-graphql
+  ports:
+    - name: grpc
+      port: 3060
+      targetPort: 3060
+    - name: metric
+      port: 8080
+      targetPort: 8080

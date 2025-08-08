@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-fpm
+spec:
+  selector:
+    matchLabels:
+      app: php-fpm
+  template:
+    metadata:
+      labels:
+        app: php-fpm
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: mariadb:11
+          command:
+            [
+              "sh",
+              "-c",
+              'until mariadb-admin ping -h"${DB_HOST}" -P ${DB_PORT} --silent; do echo waiting for ${DB_HOST}...; sleep 3; done',
+            ]
+        - name: update
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          imagePullPolicy: Always
+          command:
+            [
+              "sh",
+              "-c",
+              "eyeinstall2 database /var/eyevip && eyeinstall2 set /var/eyevip adminpw",
+            ]
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          envFrom: []
+          volumeMounts:
+            # - mountPath: /var/eyevip/public_html/images
+            #   name: eyevip-php
+            #   subPath: data/images
+            # - mountPath: /var/eyevip/public_html/cache
+            #   name: eyevip-tmp
+            #   subPath: data/cache
+      containers:
+        - name: phpfpm
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          command:
+            - /bin/sh
+            - "-c"
+            - >-
+              php-fpm --fpm-config /etc/php-fpm.conf -F --pid /tmp/php-fpm.pid
+          volumeMounts:
+            - mountPath: /etc/php-fpm.d/zz-docker.conf
+              subPath: zz-docker.conf
+              name: php-fpm-conf
+              readOnly: true
+            - mountPath: /etc/php.d/99-custom.ini
+              subPath: php.ini
+              name: php-fpm-conf
+              readOnly: true
+            - mountPath: /var/eyevip/public_html/images
+              name: eyevip-data
+              subPath: data/images # persistent storage for images
+            # cached files, e.g uploads and excel downloads from job
+            # if no replication, this doesn't need to be mounted
+            - mountPath: /var/eyevip/public_html/cache
+              name: eyevip-data
+              subPath: data/cache
+            # php session files
+            # if no replication, this doesn't need to be mounted
+            # also if redis-session is used, this can be skipped
+            - mountPath: /tmp/php_sess
+              name: eyevip-data # php session, not used for
+              subPath: data/php_sess
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+              name: fastcgi
+          readinessProbe:
+            exec:
+              command: ["/scripts/php-fpm-healthcheck.sh"]
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 30
+            successThreshold: 1
+          livenessProbe:
+            exec:
+              command: ["/scripts/php-fpm-healthcheck.sh"]
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 30
+            successThreshold: 1
+          # resources:
+          #   limits:
+          #     cpu: "1"
+          #     memory: "1Gi"
+          envFrom: []
+      restartPolicy: Always
+      volumes:
+        - name: php-fpm-conf
+          configMap:
+            name: php-fpm
+        - name: eyevip-data
+          emptyDir: {}
+          # persistentVolumeClaim:
+          #   # defaultMode: 0770
+          #   claimName: eyevip
+      #   - name: eyevip-tmp
+      #     persistentVolumeClaim:
+      #       defaultMode: 0770
+      #       claimName: eyevip-tmp-data
+      # - name: php-fpm-run
+      #   emptyDir: {}

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          command:
+            - /bin/sh
+            - "-c"
+            - nginx
+          volumeMounts:
+            - mountPath: /etc/nginx/upstream.conf
+              subPath: upstream.conf
+              name: nginx-conf
+              readOnly: true
+          #   - mountPath: /var/eyevip/public_html/images
+          #     name: eyevip-php
+          #     subPath: data/images
+          # - mountPath: /var/eyevip/public_html/cache
+          #   name: eyevip-tmp
+          #   subPath: data/cache
+          # - mountPath: /tmp/php_sess
+          #   name: eyevip-tmp
+          #   subPath: data/php_sess
+          # - name: nginx-run
+          #   mountPath: /run/nginx
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          # readinessProbe:
+          #   exec:
+          #     command: ["/scripts/nginx-healthcheck.sh"]
+          #   initialDelaySeconds: 30
+          #   failureThreshold: 3
+          #   timeoutSeconds: 30
+          #   successThreshold: 1
+          # livenessProbe:
+          #   exec:
+          #     command: ["/scripts/nginx-healthcheck.sh"]
+          #   initialDelaySeconds: 30
+          #   failureThreshold: 3
+          #   timeoutSeconds: 30
+          #   successThreshold: 1
+          # resources:
+          #   limits:
+          #     cpu: "1"
+          #     memory: "1Gi"
+          envFrom: []
+      restartPolicy: Always
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx
+      #   - name: eyevip-php
+      #     persistentVolumeClaim:
+      #       defaultMode: 0770
+      #       claimName: eyevip-app-data
+      #   - name: eyevip-tmp
+      #     persistentVolumeClaim:
+      #       defaultMode: 0770
+      #       claimName: eyevip-tmp-data

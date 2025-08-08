@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx
+data:
+  upstream.conf: |
+    upstream phpfpm_backend {
+      server phpfpm:9000;
+    }

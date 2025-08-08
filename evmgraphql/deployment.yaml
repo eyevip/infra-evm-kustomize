@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evm-graphql
+spec:
+  selector:
+    matchLabels:
+      app: evm-graphql
+  template:
+    metadata:
+      labels:
+        app: evm-graphql
+    spec:
+      containers:
+        - name: evm-graphql
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /usr/bin/evm-graphql
+            - --config
+            - /etc/evm-graphql/config.yaml
+            - grpc
+          # resources:
+          #   limits:
+          #     memory: "2Gi"
+          #     cpu: "2"
+          ports:
+            - name: grpc
+              containerPort: 3060
+            - name: metric
+              containerPort: 8080
+          readinessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:3060"]
+            initialDelaySeconds: 5
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:3060"]
+            initialDelaySeconds: 10
+          volumeMounts:
+            - name: graphql-config
+              mountPath: /etc/evm-graphql
+      volumes:
+        - name: graphql-config
+          configMap:
+            name: evm-graphql
