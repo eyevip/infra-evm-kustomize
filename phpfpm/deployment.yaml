@@ -100,11 +100,11 @@ spec:
           envFrom: []
       restartPolicy: Always
       volumes:
+        - name: eyevip-data
+          emptyDir: {}
         - name: php-fpm-conf
           configMap:
             name: php-fpm
-        - name: eyevip-data
-          emptyDir: {}
           # persistentVolumeClaim:
           #   # defaultMode: 0770
           #   claimName: eyevip

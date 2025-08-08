@@ -19,14 +19,3 @@ data:
 
     ; Ensure worker stdout and stderr are sent to the main error log.
     catch_workers_output = yes
-# ---
-# apiVersion: v1
-# kind: PersistentVolumeClaim
-# metadata:
-#   name: eyevip
-# spec:
-#   accessModes:
-#     - ReadWriteMany
-#   resources:
-#     requests:
-#       storage: 5Gi

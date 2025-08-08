@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  template:
+    spec:
+      initContainers:
+        # DB host and port are used
+        - name: wait-for-db
+          envFrom:
+            - configMapRef:
+                name: eyevip-cfg
+        # Whole eyevip configs are used for DB setup
+        - name: update
+          envFrom:
+            - configMapRef:
+                name: mariadb-config
+            - configMapRef:
+                name: eyevip-cfg
+            - secretRef:
+                name: mariadb-secret
+      containers:
+        # Whole eyevip configs are used for DB setup
+        - name: phpfpm
+          envFrom:
+            - configMapRef:
+                name: mariadb-config
+            - configMapRef:
+                name: eyevip-cfg
+            - secretRef:
+                name: mariadb-secret

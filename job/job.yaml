@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: job
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: job
+        spec:
+          containers:
+            - name: job
+              image: reg.eyevip.io/eyevip/eyevip:latest
+              command:
+                - /scripts/cron.sh
+              envFrom: []
+              volumeMounts:
+                - mountPath: /var/eyevip/public_html/images
+                  name: eyevip-data
+                  subPath: data/images # persistent storage for images
+                # cached files, e.g uploads and excel downloads from job
+                # if no replication, this doesn't need to be mounted
+                - mountPath: /var/eyevip/public_html/cache
+                  name: eyevip-data
+                  subPath: data/cache
+          restartPolicy: OnFailure
+          volumes:
+            - name: eyevip-data
+              emptyDir: {}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eyevip-cfg
+data:
+  SERVER_URL: https://eyevip.apps-crc.testing # url will be used in EMails
+  DB_HOST: mariadb # service name of mariadb
+  DB_PORT: "3306"
+  LOG_LEVEL: debug
+  EVM_GRAPHQL: '{"address": "evm-graphql:3060"}' # service-name of evmgraphql-deployment
+  REDIS_URL: tcp://redis.svc:6379?auth=NEW_SECURE_REDIS_PASS

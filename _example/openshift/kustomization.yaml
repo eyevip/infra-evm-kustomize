@@ -1,0 +1,80 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - config.yaml
+  # volume for eyevip images and cached files (will be applied via patch)
+  - pvc.yaml
+  # just for demo purposes
+  - ../../mariadb
+  # just for demo puposes
+  - ../../redis
+  # graphQL daemon
+  - ../../evmgraphql
+  # PHP-FPM config, needs some patches
+  - ../../phpfpm
+  # NGinx needs upstream patch
+  - ../../nginx
+  # CronJob that sends mails and do heavy tasks
+  - ../../job
+
+# Set Image name and tag
+images:
+  - name: reg.eyevip.io/eyevip/eyevip
+    newName: reg.eyevip.io/customer/eyevip
+    newTag: 2.4.3-01
+
+patches:
+  # injects the configs and secrets, depending on your naming, this **must** be changed
+  - path: patches/env-php.yaml
+    target:
+      kind: Deployment
+      name: php-fpm
+  - path: patches/env-job.yaml
+    target:
+      kind: CronJob
+      name: job
+
+  # replace the `emptyDir` with an actual volume
+  - path: patches/volume-php.yaml
+    target:
+      kind: Deployment
+      name: php-fpm
+  - path: patches/volume-job.yaml
+    target:
+      kind: CronJob
+      name: job
+
+  # # If phpfpm service changed the upstream must be changed
+  # - path: patches/nginx-upstream.yaml
+  #   target:
+  #     kind: ConfigMap
+  #     name: nginx
+
+  # # You might need to reference a pull secret
+  # - target:
+  #     kind: Deployment
+  #   patch: |-
+  #     - op: add
+  #       path: /spec/template/spec/imagePullSecrets
+  #       value:
+  #         - name: reg.eyevip.io
+
+  # # optional patch to save session in redis
+  # - path: patches/php-sess.yaml
+  #   target:
+  #     kind: ConfigMap
+  #     name: php-fpm
+
+# Replace some passwords
+secretGenerator:
+  - behavior: replace
+    literals:
+      - PASSWORD=NEW_SECURE_REDIS_PASS
+    name: redis-secret
+    type: Opaque
+  - behavior: replace
+    literals:
+      - ROOT_PASSWORD=NEW_SECURE_ROOT_PASSWORD
+      - DB_PASSWORD=NEW_SECURE_USER_PASSWORD
+    name: mariadb-secret
+    type: Opaque
