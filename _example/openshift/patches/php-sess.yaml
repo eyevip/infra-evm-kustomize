@@ -7,4 +7,4 @@ data:
     TIMEZONE='Europe/Zurich'
 
     session.save_handler = redis
-    session.save_path = tcp://redis.svc:6379?auth=NEW_SECURE_REDIS_PASS
+    session.save_path = tcp://redis:6379?auth=NEW_SECURE_REDIS_PASS
