@@ -15,7 +15,10 @@ spec:
             - name: job
               image: reg.eyevip.io/eyevip/eyevip:latest
               command:
-                - /scripts/cron.sh
+                - /bin/sh
+                - "-c"
+                - >-
+                  php /var/eyevip/public_html/maintenance/runJobs.php
               envFrom: []
               volumeMounts:
                 - mountPath: /var/eyevip/public_html/images
