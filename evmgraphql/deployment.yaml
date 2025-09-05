@@ -30,12 +30,12 @@ spec:
             - name: metric
               containerPort: 8080
           readinessProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:3060"]
+            grpc:
+              port: 3060
             initialDelaySeconds: 5
           livenessProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:3060"]
+            grpc:
+              port: 3060
             initialDelaySeconds: 10
           volumeMounts:
             - name: graphql-config
