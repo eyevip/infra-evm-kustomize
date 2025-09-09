@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: php-fpm
+  name: phpfpm
 spec:
   selector:
     matchLabels:
-      app: php-fpm
+      app: phpfpm
   template:
     metadata:
       labels:
-        app: php-fpm
+        app: phpfpm
     spec:
       initContainers:
         - name: wait-for-db
