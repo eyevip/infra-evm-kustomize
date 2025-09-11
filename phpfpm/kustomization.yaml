@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - config.yaml
+  - database.yaml
   - deployment.yaml
   - service.yaml
   # - monitor.yaml

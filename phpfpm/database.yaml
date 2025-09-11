@@ -1,0 +1,32 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-setup
+spec:
+  template:
+    spec:
+      containers:
+        - name: database-setup
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          command:
+            [
+              "sh",
+              "-c",
+              "eyeinstall2 database /var/eyevip && eyeinstall2 set /var/eyevip adminpw",
+            ]
+          envFrom: []
+          volumeMounts:
+            - mountPath: /var/eyevip/public_html/images
+              name: eyevip-data
+              subPath: data/images # persistent storage for images
+            # cached files, e.g uploads and excel downloads from job
+            # if no replication, this doesn't need to be mounted
+            - mountPath: /var/eyevip/public_html/cache
+              name: eyevip-data
+              subPath: data/cache
+      restartPolicy: OnFailure
+      volumes:
+        - name: eyevip-data
+          emptyDir: {}
+  backoffLimit: 4
