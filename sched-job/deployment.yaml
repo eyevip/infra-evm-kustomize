@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jsched
+spec:
+  selector:
+    matchLabels:
+      app: jsched
+  template:
+    metadata:
+      labels:
+        app: jsched
+    spec:
+      containers:
+        - name: jsched
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          command:
+            - /usr/bin/ev-scheduled
+            - --config
+            - /etc/ev-scheduled/config.yaml
+          volumeMounts:
+            - mountPath: /etc/ev-scheduled/config.yaml
+              subPath: config.yaml
+              name: scheduler-config
+              readOnly: true
+            - mountPath: /var/eyevip/public_html/images
+              name: eyevip-data
+              subPath: data/images # persistent storage for images
+            # cached files, e.g uploads and excel downloads from job
+            # if no replication, this doesn't need to be mounted
+            - mountPath: /var/eyevip/public_html/cache
+              name: eyevip-data
+              subPath: data/cache
+          envFrom: []
+      restartPolicy: Always
+      volumes:
+        - name: eyevip-data
+          emptyDir: {}
+        - name: scheduler-config
+          configMap:
+            name: job-scheduler
