@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jsched
+  name: job-scheduler
 spec:
   selector:
     matchLabels:
-      app: jsched
+      app: job-scheduler
   template:
     metadata:
       labels:
-        app: jsched
+        app: job-scheduler
     spec:
       containers:
-        - name: jsched
+        - name: job-scheduler
           image: reg.eyevip.io/eyevip/eyevip:latest
           command:
             - /usr/bin/ev-scheduled
