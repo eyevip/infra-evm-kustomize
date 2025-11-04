@@ -51,6 +51,10 @@ spec:
             - mountPath: /tmp/php_sess
               name: eyevip-data # php session, not used for
               subPath: data/php_sess
+            # trusted CA certificates
+            - mountPath: /etc/pki/ca-trust/extracted/pem/
+              name: eyevip-data
+              subPath: data/certs
           ports:
             - containerPort: 9000
               protocol: TCP

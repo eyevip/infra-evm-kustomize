@@ -6,6 +6,14 @@ metadata:
 spec:
   template:
     spec:
+      initContainers:
+        - name: certificates
+          image: reg.eyevip.io/eyevip/eyevip:latest
+          command: ["sh", "-c", "update-ca-trust"]
+          volumeMounts:
+            - mountPath: /etc/pki/ca-trust/extracted/pem/
+              name: eyevip-data
+              subPath: data/certs
       containers:
         - name: database-setup
           image: reg.eyevip.io/eyevip/eyevip:latest
@@ -25,6 +33,9 @@ spec:
             - mountPath: /var/eyevip/public_html/cache
               name: eyevip-data
               subPath: data/cache
+            - mountPath: /etc/pki/ca-trust/extracted/pem/
+              name: eyevip-data
+              subPath: data/certs
       restartPolicy: OnFailure
       volumes:
         - name: eyevip-data
