@@ -31,7 +31,7 @@ spec:
             - mountPath: /var/eyevip/public_html/cache
               name: eyevip-data
               subPath: data/cache
-            - mountPath: /etc/pki/ca-trust/extracted/openssl/
+            - mountPath: /etc/pki/ca-trust/extracted/
               name: eyevip-data
               subPath: data/certs
           envFrom: []
