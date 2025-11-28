@@ -11,6 +11,12 @@ data:
           cron: "*/1 * * * *"
           job: IOJobs
           args: {}
+      - name: Cron
+        type: CRON
+        opts:
+          cron: "*/1 * * * *"
+          job: MailJobs
+          args: {}
     jobs:
       - name: IOJobs
         type: CMD
@@ -18,4 +24,11 @@ data:
           params:
             - name: ID
               type: string
-          exec: "php /var/eyevip/public_html/maintenance/runJobs.php"
+          exec: "php /var/eyevip/public_html/maintenance/runJobs.php --io"
+      - name: MailJobs
+        type: CMD
+        opts:
+          params:
+            - name: ID
+              type: string
+          exec: "php /var/eyevip/public_html/maintenance/runJobs.php --mail"
