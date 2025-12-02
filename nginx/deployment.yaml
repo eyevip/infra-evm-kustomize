@@ -23,9 +23,9 @@ spec:
               subPath: upstream.conf
               name: nginx-conf
               readOnly: true
-          #   - mountPath: /var/eyevip/public_html/images
-          #     name: eyevip-php
-          #     subPath: data/images
+            - mountPath: /var/eyevip/public_html/images
+              name: eyevip-data
+              subPath: data/images # persistent storage for images
           # - mountPath: /var/eyevip/public_html/cache
           #   name: eyevip-tmp
           #   subPath: data/cache
@@ -59,13 +59,11 @@ spec:
           envFrom: []
       restartPolicy: Always
       volumes:
+        - name: eyevip-data
+          emptyDir: {}
         - name: nginx-conf
           configMap:
             name: nginx
-      #   - name: eyevip-php
-      #     persistentVolumeClaim:
-      #       defaultMode: 0770
-      #       claimName: eyevip-app-data
       #   - name: eyevip-tmp
       #     persistentVolumeClaim:
       #       defaultMode: 0770
