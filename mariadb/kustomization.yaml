@@ -3,12 +3,13 @@ kind: Kustomization
 
 generatorOptions:
   disableNameSuffixHash: true
-secretGenerator:
-  - name: mariadb-secret
-    literals:
-      - ROOT_PASSWORD=SECURE_ROOT_PASSWORD
-      - DB_PASSWORD=SECURE_USER_PASSWORD
-    type: Opaque
+## disable as argoCD will detect drift on override
+# secretGenerator:
+#   - name: mariadb-secret
+#     literals:
+#       - ROOT_PASSWORD=SECURE_ROOT_PASSWORD
+#       - DB_PASSWORD=SECURE_USER_PASSWORD
+#     type: Opaque
 
 resources:
   - config.yaml
