@@ -20,6 +20,13 @@ spec:
                 - >-
                   php /var/eyevip/public_html/maintenance/runJobs.php
               envFrom: []
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "1"
+                  memory: "2Gi"
               volumeMounts:
                 - mountPath: /var/eyevip/public_html/images
                   name: eyevip-data

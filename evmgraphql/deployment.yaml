@@ -20,10 +20,13 @@ spec:
             - --config
             - /etc/evm-graphql/config.yaml
             - grpc
-          # resources:
-          #   limits:
-          #     memory: "2Gi"
-          #     cpu: "2"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
           ports:
             - name: grpc
               containerPort: 3060
