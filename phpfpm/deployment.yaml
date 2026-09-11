@@ -58,14 +58,14 @@ spec:
           readinessProbe:
             exec:
               command: ["/scripts/php-fpm-healthcheck.sh"]
-            initialDelaySeconds: 30
+            initialDelaySeconds: 2
             failureThreshold: 3
             timeoutSeconds: 30
             successThreshold: 1
           livenessProbe:
             exec:
               command: ["/scripts/php-fpm-healthcheck.sh"]
-            initialDelaySeconds: 30
+            initialDelaySeconds: 2
             failureThreshold: 3
             timeoutSeconds: 30
             successThreshold: 1
