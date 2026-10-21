@@ -9,6 +9,10 @@ data:
       warnComplexity: 500
       federation:
         services-start-port: 9050
+        composer:
+          address: wg-compose.eyevip.io:443
+          tls:
+            enabled: true
 
     global:
       # # set to time.Local and add to mysql dsn (time_zone="UTC")
