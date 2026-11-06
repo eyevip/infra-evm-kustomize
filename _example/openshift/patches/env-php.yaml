@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
+  name: phpfpm
 spec:
   template:
     spec:
@@ -11,17 +11,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: eyevip-cfg
-        # Whole eyevip configs are used for DB setup
-        - name: update
-          envFrom:
-            - configMapRef:
-                name: mariadb-config
-            - configMapRef:
-                name: eyevip-cfg
-            - secretRef:
-                name: mariadb-secret
       containers:
-        # Whole eyevip configs are used for DB setup
         - name: phpfpm
           envFrom:
             - configMapRef:

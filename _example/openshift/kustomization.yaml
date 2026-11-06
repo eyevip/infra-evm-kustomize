@@ -4,18 +4,24 @@ resources:
   - config.yaml
   # volume for eyevip images and cached files (will be applied via patch)
   - pvc.yaml
-  # just for demo purposes
+  # just for demo purposes. Bring your own MariaDB: drop this, but still provide
+  # `mariadb-config` (DB_NAME, DB_USER) and `mariadb-secret` (DB_PASSWORD);
+  # DB_HOST in config.yaml must be a Service name, not a pod name.
+  # Env key names must match the image's instance config.json (see config.yaml).
   - ../../mariadb
   # just for demo puposes
   - ../../redis
   # graphQL daemon
   - ../../evmgraphql
-  # PHP-FPM config, needs some patches
+  # PHP-FPM and the `database-setup` Job, needs some patches
+  # `database-setup` is a Job: delete it before re-applying with a new image
   - ../../phpfpm
   # NGinx needs upstream patch
   - ../../nginx
   # CronJob that sends mails and do heavy tasks
   - ../../job
+  # alternative to `../../job` (use one, not both): long-running scheduler
+  # - ../../sched-job
 
 # Set Image name and tag
 images:
@@ -28,17 +34,37 @@ patches:
   - path: patches/env-php.yaml
     target:
       kind: Deployment
-      name: php-fpm
+      name: phpfpm
+  - path: patches/env-setup.yaml
+    target:
+      kind: Job
+      name: database-setup
   - path: patches/env-job.yaml
     target:
       kind: CronJob
       name: job
-
-  # replace the `emptyDir` with an actual volume
-  - path: patches/volume-php.yaml
+  - path: patches/env-scheduler.yaml
     target:
       kind: Deployment
-      name: php-fpm
+      name: job-scheduler
+
+  # replace the `emptyDir` with an actual volume
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: phpfpm
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: web
+  - path: patches/volume.yaml
+    target:
+      kind: Job
+      name: database-setup
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: job-scheduler
   - path: patches/volume-job.yaml
     target:
       kind: CronJob
@@ -72,8 +98,8 @@ secretGenerator:
       - PASSWORD=NEW_SECURE_REDIS_PASS
     name: redis-secret
     type: Opaque
-  - behavior: replace
-    literals:
+  # ../../mariadb ships no secret, so create it here
+  - literals:
       - ROOT_PASSWORD=NEW_SECURE_ROOT_PASSWORD
       - DB_PASSWORD=NEW_SECURE_USER_PASSWORD
     name: mariadb-secret

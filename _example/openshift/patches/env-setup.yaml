@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-setup
+spec:
+  template:
+    spec:
+      containers:
+        - name: database-setup
+          envFrom:
+            - configMapRef:
+                name: mariadb-config
+            - configMapRef:
+                name: eyevip-cfg
+            - secretRef:
+                name: mariadb-secret
