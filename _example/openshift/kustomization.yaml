@@ -1,21 +1,26 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # ConfigMap `eyevip-cfg`; the Secret `eyevip-cfg` is generated below
   - config.yaml
   # volume for eyevip images and cached files (will be applied via patch)
   - pvc.yaml
-  # just for demo purposes
+  # just for demo purposes. Bring your own MariaDB: drop this, provide a
+  # `mariadb-secret` with DB_PASSWORD (or change the secretKeyRef in patches/env-*.yaml),
+  # set DB_NAME/DB_USER in patches/env-*.yaml and DB_HOST in config.yaml.
   - ../../mariadb
-  # just for demo puposes
+  # just for demo purposes
   - ../../redis
   # graphQL daemon
   - ../../evmgraphql
-  # PHP-FPM config, needs some patches
+  # PHP-FPM and the `database-setup` Job
   - ../../phpfpm
   # NGinx needs upstream patch
   - ../../nginx
-  # CronJob that sends mails and do heavy tasks
+  # CronJob that sends mails and does heavy tasks
   - ../../job
+  # alternative to `../../job` (use one, not both): long-running scheduler
+  # - ../../sched-job
 
 # Set Image name and tag
 images:
@@ -28,17 +33,37 @@ patches:
   - path: patches/env-php.yaml
     target:
       kind: Deployment
-      name: php-fpm
+      name: phpfpm
+  - path: patches/env-setup.yaml
+    target:
+      kind: Job
+      name: database-setup
   - path: patches/env-job.yaml
     target:
       kind: CronJob
       name: job
-
-  # replace the `emptyDir` with an actual volume
-  - path: patches/volume-php.yaml
+  - path: patches/env-scheduler.yaml
     target:
       kind: Deployment
-      name: php-fpm
+      name: job-scheduler
+
+  # replace the `emptyDir` with an actual volume
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: phpfpm
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: web
+  - path: patches/volume.yaml
+    target:
+      kind: Job
+      name: database-setup
+  - path: patches/volume.yaml
+    target:
+      kind: Deployment
+      name: job-scheduler
   - path: patches/volume-job.yaml
     target:
       kind: CronJob
@@ -67,13 +92,18 @@ patches:
 
 # Replace some passwords
 secretGenerator:
+  # secret part of the eyevip config
+  - literals:
+      - EYEVIP_PASSWORD=SECURE_PASS # initial password for 'eyevipadmin'
+    name: eyevip-cfg
+    type: Opaque
   - behavior: replace
     literals:
       - PASSWORD=NEW_SECURE_REDIS_PASS
     name: redis-secret
     type: Opaque
-  - behavior: replace
-    literals:
+  # demo DB credentials; ../../mariadb ships no secret
+  - literals:
       - ROOT_PASSWORD=NEW_SECURE_ROOT_PASSWORD
       - DB_PASSWORD=NEW_SECURE_USER_PASSWORD
     name: mariadb-secret

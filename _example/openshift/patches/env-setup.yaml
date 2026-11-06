@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-setup
+  # Argo CD re-creates the Job on each sync; without Argo, delete the Job
+  # before re-applying (its pod template is immutable)
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  template:
+    spec:
+      # OpenShift SCCs assign fsGroup; set it on plain Kubernetes
+      # securityContext:
+      #   fsGroup: 1000
+      containers:
+        - name: database-setup
+          envFrom:
+            - secretRef:
+                name: eyevip-cfg
+            - configMapRef:
+                name: eyevip-cfg
+          # must match `mariadb-config` / `mariadb-secret` of your DB
+          env:
+            - name: DB_NAME
+              value: eyevip
+            - name: DB_USER
+              value: eyevip
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: DB_PASSWORD

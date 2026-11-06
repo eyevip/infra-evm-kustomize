@@ -1,13 +1,19 @@
+# Keys must match the env names in the image's instance config.json
+# (DB: constants `_hostname`, `_dbuser`, `_dbpass`, `_dbname`, `_dbport`).
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: eyevip-cfg
 data:
   SERVER_URL: https://eyevip.apps-crc.testing # url will be used in EMails
-  DB_HOST: mariadb # service name of mariadb
+  # Service name, not a pod name, e.g. <mariadb-service>.<ns>.svc.cluster.local
+  DB_HOST: mariadb
   DB_PORT: "3306"
   LOG_LEVEL: debug
-  EVM_GRAPHQL: '{"address": "evm-graphql:3060"}' # service-name of evmgraphql-deployment
+  # service-name of evmgraphql-deployment
+  # ghcr.io/eyevip/infra-images builds read EVM_ADDRESS instead
+  EVM_GRAPHQL: |-
+    {
+      "address": "evm-graphql:3060"
+    }
   REDIS_URL: tcp://redis:6379?auth=NEW_SECURE_REDIS_PASS
-
-  EYEVIP_PASSWORD: SECURE_PASS # initial password for 'eyevipadmin'
