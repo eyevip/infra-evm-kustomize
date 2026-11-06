@@ -1,24 +1,23 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # ConfigMap `eyevip-cfg`; the Secret `eyevip-cfg` is generated below
   - config.yaml
   # volume for eyevip images and cached files (will be applied via patch)
   - pvc.yaml
-  # just for demo purposes. Bring your own MariaDB: drop this, but still provide
-  # `mariadb-config` (DB_NAME, DB_USER) and `mariadb-secret` (DB_PASSWORD);
-  # DB_HOST in config.yaml must be a Service name, not a pod name.
-  # Env key names must match the image's instance config.json (see config.yaml).
+  # just for demo purposes. Bring your own MariaDB: drop this, provide a
+  # `mariadb-secret` with DB_PASSWORD (or change the secretKeyRef in patches/env-*.yaml),
+  # set DB_NAME/DB_USER in patches/env-*.yaml and DB_HOST in config.yaml.
   - ../../mariadb
-  # just for demo puposes
+  # just for demo purposes
   - ../../redis
   # graphQL daemon
   - ../../evmgraphql
-  # PHP-FPM and the `database-setup` Job, needs some patches
-  # `database-setup` is a Job: delete it before re-applying with a new image
+  # PHP-FPM and the `database-setup` Job
   - ../../phpfpm
   # NGinx needs upstream patch
   - ../../nginx
-  # CronJob that sends mails and do heavy tasks
+  # CronJob that sends mails and does heavy tasks
   - ../../job
   # alternative to `../../job` (use one, not both): long-running scheduler
   # - ../../sched-job
@@ -93,12 +92,17 @@ patches:
 
 # Replace some passwords
 secretGenerator:
+  # secret part of the eyevip config
+  - literals:
+      - EYEVIP_PASSWORD=SECURE_PASS # initial password for 'eyevipadmin'
+    name: eyevip-cfg
+    type: Opaque
   - behavior: replace
     literals:
       - PASSWORD=NEW_SECURE_REDIS_PASS
     name: redis-secret
     type: Opaque
-  # ../../mariadb ships no secret, so create it here
+  # demo DB credentials; ../../mariadb ships no secret
   - literals:
       - ROOT_PASSWORD=NEW_SECURE_ROOT_PASSWORD
       - DB_PASSWORD=NEW_SECURE_USER_PASSWORD

@@ -5,12 +5,24 @@ metadata:
 spec:
   template:
     spec:
+      # OpenShift SCCs assign fsGroup; set it on plain Kubernetes
+      # securityContext:
+      #   fsGroup: 1000
       containers:
         - name: job-scheduler
           envFrom:
-            - configMapRef:
-                name: mariadb-config
+            - secretRef:
+                name: eyevip-cfg
             - configMapRef:
                 name: eyevip-cfg
-            - secretRef:
-                name: mariadb-secret
+          # must match `mariadb-config` / `mariadb-secret` of your DB
+          env:
+            - name: DB_NAME
+              value: eyevip
+            - name: DB_USER
+              value: eyevip
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: DB_PASSWORD
